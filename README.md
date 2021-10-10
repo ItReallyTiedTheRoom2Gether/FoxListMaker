@@ -3,8 +3,7 @@ An HTML cataloguing system
 
 ```diff
 - Removes all files with the extension 'html' and 'source' from the current working directory when ran!
-
-
+```
 At the moment, it's about 60 minutes old and is nowhere near ready for use. However, it does take a 5-column source file with the following:
 
   Title,Pageref,imageref,tags,content

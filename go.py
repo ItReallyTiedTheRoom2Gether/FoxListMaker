@@ -87,8 +87,8 @@ for x in source_file_list:
 				output_file.write(line[0])
 				output_file.write("</span><br />")
 				output_file.write(line[4])
-				output_file.write("<br /><br />")
-				
+				output_file.write("</div>\n")
+				output_file.write("<br />")
 	in_file.close()
 	
 	output_file.write("</body>\n")

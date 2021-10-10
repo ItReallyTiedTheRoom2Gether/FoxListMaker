@@ -19,6 +19,7 @@ The Sample source file has 3 entries:
     Chocolate and Oranges,003,003.png,oranges+chocolate,"Today, I had chocolate and oranges."
     
 Running go.py produces the following for 'oranges.html':
+![oranges.html](oranges.png)
 
 And this for 'chocolate.html':
-
+![chocolate.html](chocolate.png)

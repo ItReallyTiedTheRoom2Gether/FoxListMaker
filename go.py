@@ -3,98 +3,94 @@ import csv
 import os
 import time
 
-os.system("rm *.html")
+#Reset the terminal
+os.system("reset")
 
-#Initializing script variables
+#Remove all *.source and *.html files
+try:
+	os.system("rm *.html >/dev/null 2>&1 && rm -r buildfolder >/dev/null 2>&1 ")
+except:
+	pass
 
-line_title, line_page_number, line_image, line_tags, current_tag = "", "", "", "", ""
-
-source_file_list	=	[]
-
-#HTML Meta Data
-title_tag	=	"Insert the title content which will appear for your website here"
-description_tag	=	"Insert the description content which will appear for your website here"
-
-in_file	=	open("source.txt","r")
-delimit_in_file	= csv.reader(in_file,delimiter=",")
-
-working_directory	=	os.getcwd()
-print("Working directory is "+working_directory)
-
-## This for loop takes the data provided in the index and separates it out into separate text files with the extension "*.source"
-
-for line in delimit_in_file:
-	line_title	=	line[0]
-	line_page_number = line[1]
-	line_image	=	line[2]
-	line_tags	=	line[3]
+#This function adds the HTML header from 'top.source' to an open file
+def add_top_html(output_file):
+	file_to_copy = open("top.source","r")
+	for line in file_to_copy:
+		output_file.write(line)
+	file_to_copy.close()
+	return;
 	
-	line_tags	=	line_tags.split("+")	#	Break the tags up using the 'plus' sign
-	no_of_tags	=	0
-	no_of_tags	=	len(line_tags)			#	Count the number of tags used
-	current_tag_count	=	0						#	Counter variable for iterating through tags
+#This function adds the HTML footer from 'bottom.source' to an open file
+def add_bottom_html(output_file):
+	file_to_copy = open("bottom.source","r")
+	for line in file_to_copy:
+		output_file.write(line)
+	file_to_copy.close()
+
+tag_list = []
+alphabet_tags = 1 # Set this to '1' if you want the list of tags to be alphabetized. Otherwise, leave it at '0'. The sort happens on line 42!
 	
-	while(current_tag_count<no_of_tags):
-		current_tag	=	line_tags[current_tag_count]
-		out_file	=	open((current_tag+".source"),"a")	#	Start building the source files for each of the tags
+source_file = open("source.txt","r")
+delimit_source_file = csv.reader(source_file,delimiter=",")
+
+# This block of code builds the list of tags to use as an index
+for line in delimit_source_file:
+	line_tags = line[3]
+	line_tags = line[3].split("+")	# Break up the list of tags using the '+' sign. It's now a list of items, rather than a single string.
+	for x in line_tags: # This nested loop checks to see if the current tag already exists in the tag_list
+		tag_found = 0 # Boolean variable which is changed to '1' ('true') if the tag already exists in the tag list
+		for y in tag_list:
+			if(x==y):
+				tag_found = 1
+			else:
+				pass
+		if(tag_found==0): # If the tag was not found in the tag_list
+			tag_list.append(x) # Add it to the tag_list
+		else:
+			pass
 		
-		out_file.write(line_title+","+line_page_number+","+line_image)	# Add to the tag's source file each of the necessary items	
-		out_file.write("\n")
-		out_file.close()
-		
-		current_tag_count	+=	1
-		
-in_file.close()
+source_file.close() # The source file can now be closed as it's not needed right now.
 
-for file in os.listdir(working_directory):
-	if file.endswith(".source"):
-		source_file_list.append(file)
+if(alphabet_tags==0):
+	pass
+else:
+	tag_list.sort()	# Sort the tag list alphabetically
 
-for x in source_file_list:
-	current_tag	=	x
-	output_file	=	x
-	output_file	=	((output_file[:-7])+".html")
-	output_file	=	open(output_file,"w")
-	
-	# Quick note: Credit for this HTML template goes to https://www.sitepoint.com/a-basic-html5-template/
-	
-	output_file.write("<!doctype html>\n\n")
-	output_file.write("<html lang=\"en\">\n")
-	output_file.write("<head>\n")
-	output_file.write("\t<meta charset=\"utf-8\">\n")
-	output_file.write("\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\n")
-	output_file.write("\t<title>Tag: "+x[:-7]+"</title>\n\n")
-	
-	output_file.write("\t<meta property=\"og:title\" content=\""+title_tag+"\">\n")
-	output_file.write("\t<meta property=\"og:type\" content=\"website\">\n")
-	output_file.write("\t<meta property=\"og:description\" content=\""+description_tag+"\">\n\n")
-	
-	output_file.write("\t<link rel=\"icon\" href=\"/favicon.ico\">\n")
-	output_file.write("\t<link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">\n\n")
+print("Tags found in source file:\n"+str(tag_list))
 
-	output_file.write("\t<link rel=\"stylesheet\" href=\"style.css\">\n\n")
-	
-	output_file.write("</head>\n\n")
-	output_file.write("<body>\n\n")
-	
-	in_file	=	open("source.txt","r")
-	delimit_in_file	=	csv.reader(in_file,delimiter=",")
-	for line in delimit_in_file:
-		current_line_tags	=	line[3].split("+")
-		for i in current_line_tags:
-			if(x[:-7]==i):
-				output_file.write("\t<div class=\"newentry\">\n<span class=\"header\">")
-				output_file.write(line[0])
-				output_file.write("</span><br />")
-				output_file.write(line[4])
-				output_file.write("</div>\n")
-				output_file.write("<br />")
-	in_file.close()
-	
-	output_file.write("</body>\n")
-	output_file.write("</html>\n")
-	
-	
+# Start building the individual HTML files for each tag!
+for x in tag_list:
+	output_file = x+".html"
+	output_file = open(output_file,"w")
+	add_top_html(output_file)
+	output_file.write("<a href=\"index.html\">&lt;&lt; Go Back</a><br />")
+	source_file = open("source.txt","r") # Now we will start to find each relevant entry that should be included in this tag's HTML file
+	delimit_source_file = csv.reader(source_file,delimiter=",")
+	for line in delimit_source_file:
+		line_tags = line[3]
+		line_tags = line_tags.split("+")
+		tags_for_html = line_tags
+		for y in line_tags:
+			if(y==x):
+				output_file.write("<h1>"+line[0]+"</h1>"+line[4]+" ")
+				print(line[1][0:8])
+				if (line[1][0:8]=="pagelink"):
+					output_file.write("<a href=\""+line[1][9:]+".html\">Read item</a>.")
+				output_file.write("<br />Tags: ")
+				for i in line_tags:
+					output_file.write(i+" ")
+				output_file.write("<hr /><br />")
+			else:
+				pass
+	source_file.close()
+	output_file.write("\n") # This line just adds a newline character before we start to write the footer
+	output_file.write("<a href=\"index.html\">&lt;&lt; Go Back</a><br />")
+	add_bottom_html(output_file)
 	output_file.close()
 
-os.system("rm *.source")	#	Remove all source files
+# Start building the index file
+output_file = open("index.html","w")
+add_top_html(output_file)
+for x in tag_list:
+	output_file.write("<a href=\""+x+".html\">"+x+"</a><br />")
+add_bottom_html(output_file)

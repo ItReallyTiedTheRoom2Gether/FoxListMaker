@@ -94,3 +94,4 @@ add_top_html(output_file)
 for x in tag_list:
 	output_file.write("<a href=\""+x+".html\">"+x+"</a><br />")
 add_bottom_html(output_file)
+output_file.close()
